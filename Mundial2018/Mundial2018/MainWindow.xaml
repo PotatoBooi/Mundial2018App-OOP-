@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ignore="http://www.galasoft.ch/ignore"
         mc:Ignorable="d ignore"
-        Height="300"
-        Width="300"
-        Title="MVVM Light Application"
+        Height="480"
+        Width="600"
+        Title="Mundial 2018"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
     
     <Window.Resources>
@@ -15,18 +15,43 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Skins/MainSkin.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="TextBox">
+                <Setter Property="Margin" Value="10,5"/>
+                <Setter Property="FontSize" Value="25"/>
+                <Setter Property="Width" Value="150"/>
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="Margin" Value="10,5"/>
+                <Setter Property="MinHeight" Value="40"/>
+                <Setter Property="MinWidth" Value="100"/>
+            </Style>
         </ResourceDictionary>
+        
     </Window.Resources>
 
-    <Grid x:Name="LayoutRoot">
-
-        <TextBlock FontSize="36"
-                   FontWeight="Bold"
-                   Foreground="Purple"
-                   Text="{Binding WelcomeTitle}"
-                   VerticalAlignment="Center"
-                   HorizontalAlignment="Center"
-                   TextWrapping="Wrap" />
-
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Column="1" Grid.Row="1" Text="2018 FIFA World Cup Russia" FontSize="30" HorizontalAlignment="Center" Grid.ColumnSpan="4"/>
+        <TextBox x:Name="Host" Grid.Column="1" Grid.Row="2" Text="{Binding HostName}" />
+        <TextBox x:Name="Score" Grid.Column="2" Grid.Row="2" Width="60" Text="{Binding Score}" />
+        <TextBox x:Name="Guest" Grid.Column="3" Grid.Row="2" Text="{Binding GuestName}" />
+        <DatePicker Grid.Column="4" Grid.Row="2" FirstDayOfWeek="Monday" DisplayDate="{Binding DatePicker,Mode=OneWayToSource}" Grid.RowSpan="2" />
+        <Button Grid.Column="2" Grid.Row="3" Content="Add" Command="{Binding AddMatchCommand}"/>
+        
     </Grid>
 </Window>

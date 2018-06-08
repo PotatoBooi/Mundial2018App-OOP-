@@ -1,5 +1,9 @@
 ﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Mundial2018.Model;
+using Newtonsoft.Json;
+using System;
+using System.IO;
 
 namespace Mundial2018.ViewModel
 {
@@ -12,54 +16,53 @@ namespace Mundial2018.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
+        public RelayCommand AddMatchCommand { get; private set; }
+        private string _hostName;
+        private string _guestName;
+        private string _score;
+        private DateTime _datePicker;
 
-        /// <summary>
-        /// The <see cref="WelcomeTitle" /> property's name.
-        /// </summary>
-        public const string WelcomeTitlePropertyName = "WelcomeTitle";
-
-        private string _welcomeTitle = string.Empty;
-
-        /// <summary>
-        /// Gets the WelcomeTitle property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public string WelcomeTitle
+        public string Score
         {
-            get
-            {
-                return _welcomeTitle;
-            }
-            set
-            {
-                Set(ref _welcomeTitle, value);
-            }
+            get { return _score; }
+            set { Set(ref _score, value); }
         }
 
-        /// <summary>
-        /// Initializes a new instance of the MainViewModel class.
-        /// </summary>
+
+        public string GuestName
+        {
+            get { return _guestName; }
+            set { Set(ref _guestName,value); }
+        }
+
+        public string HostName
+        {
+            get { return _hostName; }
+            set { Set(ref _hostName, value); }
+        }
+
+        public DateTime DatePicker { get => _datePicker; set => Set(ref _datePicker, value); }
+
         public MainViewModel(IDataService dataService)
         {
-            _dataService = dataService;
-            _dataService.GetData(
-                (item, error) =>
-                {
-                    if (error != null)
-                    {
-                        // Report error here
-                        return;
-                    }
-
-                    WelcomeTitle = item.Title;
-                });
+            AddMatchCommand = new RelayCommand(AddData);
         }
 
-        ////public override void Cleanup()
-        ////{
-        ////    // Clean up if needed
+        private void AddData()
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            Team host = new Team(_hostName);
+            Team guest = new Team(_guestName);
 
-        ////    base.Cleanup();
-        ////}
+            Match newMatch = new Match(host, guest, _score, _datePicker);
+            using (StreamWriter sw = new StreamWriter(@"..\json.json"))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, newMatch);
+             
+            }
+        }
+
+     
     }
 }

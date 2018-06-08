@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace Mundial2018.Model
 {
-    class Team
+    public class Team
     {
-        private string Name;
+        public string Name { get; set; }
+        public Team(string name)
+        {
+            Name = name;
+        }
 
     }
 }
