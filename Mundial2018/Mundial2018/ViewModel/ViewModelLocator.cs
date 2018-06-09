@@ -31,7 +31,7 @@ namespace Mundial2018.ViewModel
 
             if (ViewModelBase.IsInDesignModeStatic)
             {
-                SimpleIoc.Default.Register<IDataService, Design.DesignDataService>();
+               
             }
             else
             {
