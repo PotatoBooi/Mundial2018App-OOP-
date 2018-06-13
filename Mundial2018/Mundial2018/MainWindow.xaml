@@ -4,72 +4,227 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+        xmlns:behaviors="clr-namespace:WPFTextBoxAutoComplete;assembly=WPFTextBoxAutoComplete"
         xmlns:ignore="http://www.galasoft.ch/ignore"
         xmlns:command="http://www.galasoft.ch/mvvmlight"
         mc:Ignorable="d ignore"
-        Height="480"
-        Width="600"
+        Height="500"
+        Width="950"
         Title="Mundial 2018"
-        DataContext="{Binding Main, Source={StaticResource Locator}}">
+        DataContext="{Binding Main, Source={StaticResource Locator}}" ResizeMode="NoResize">
     
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Skins/MainSkin.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <ControlTemplate x:Key="ErrorTemplate">
+                <DockPanel LastChildFill="True">
+                    <Border DockPanel.Dock="Top" BorderBrush="Orange" BorderThickness="1">
+                        <AdornedElementPlaceholder />
+                    </Border>
+                </DockPanel>
+            </ControlTemplate>
             <Style TargetType="TextBox">
                 <Setter Property="Margin" Value="10,5"/>
-                <Setter Property="FontSize" Value="25"/>
-                <Setter Property="Width" Value="150"/>
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="Width" Value="170"/>
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ErrorTemplate}" />
+                <Style.Triggers>
+                    <Trigger Property="Validation.HasError" Value="true">
+                        <Setter Property="ToolTip"
+                                Value="{Binding (Validation.Errors).CurrentItem.ErrorContent, RelativeSource={x:Static RelativeSource.Self}}" />
+                    </Trigger>
+                </Style.Triggers>
             </Style>
             <Style TargetType="Button">
                 <Setter Property="Margin" Value="10,5"/>
                 <Setter Property="MinHeight" Value="40"/>
                 <Setter Property="MinWidth" Value="100"/>
             </Style>
+            <Style TargetType="ComboBox">
+                <Setter Property="Margin" Value="10,5"/>
+                <Setter Property="FontSize" Value="25" />
+                <Setter Property="MinWidth" Value="150"/>
+            </Style>
+            <Style x:Key="myHeaderStyle" TargetType="{x:Type GridViewColumnHeader}">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Style>
+          
+          
         </ResourceDictionary>
         
     </Window.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <command:EventToCommand Command="{Binding OnCloseCommand}" PassEventArgsToCommand="True" />
-        
         </i:EventTrigger>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding OnLoadCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid >
+    
+    <Grid x:Name="MainGrid" ClipToBounds="True" >
        
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="1.45*"/>
+            <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions >
         <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="10"/>
+
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Column="1" Grid.Row="1" Text="2018 FIFA World Cup Russia" FontSize="30" HorizontalAlignment="Center" Grid.ColumnSpan="4"/>
-        <TextBox x:Name="Host" Grid.Column="1" Grid.Row="2" Text="{Binding HostName}" />
-        <TextBox x:Name="Score" Grid.Column="2" Grid.Row="2" Width="60" Text="{Binding Score}" />
-        <TextBox x:Name="Guest" Grid.Column="3" Grid.Row="2" Text="{Binding GuestName}" />
-        <DatePicker Grid.Column="4" Grid.Row="2" FirstDayOfWeek="Monday" DisplayDate="{Binding DatePicker,Mode=OneWayToSource}" Grid.RowSpan="2" />
-        <Button Grid.Column="2" Grid.Row="3" Content="Add" Command="{Binding AddMatchCommand}"/>
-        <ListView Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="4" ItemsSource="{Binding MatchCollection,UpdateSourceTrigger=PropertyChanged}">
-            <!--<ListView.View>
-                <GridView>
-                   
+        <TextBlock Grid.Column="1" Grid.Row="1" Text="2018 FIFA World Cup Russia" FontSize="30" HorizontalAlignment="Center" Grid.ColumnSpan="4" Margin="0,0,0,15"/>
+        <!--
+        
+        <TextBox x:Name="Guest" Grid.Column="3" Grid.Row="2" Text="{Binding GuestName}" />-->
+        <ListView Grid.Column="1" Grid.Row="2" IsSynchronizedWithCurrentItem="True"
+                  ItemsSource="{Binding MatchCollection}" 
+                  SelectedItem="{Binding SelectedMatch,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+            <ListView.View>
+                <GridView ColumnHeaderContainerStyle="{StaticResource myHeaderStyle}"  >
+                    <GridViewColumn Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock FontSize="16" Text="{Binding Host.Name}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock FontSize="16" Text="{Binding Score}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn >
+                    <GridViewColumn Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel HorizontalAlignment="Right">
+                                <TextBlock FontSize="16" HorizontalAlignment="Right" Text="{Binding Guest.Name}"/>
+                                    
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel HorizontalAlignment="Right">
+                                    <TextBlock FontSize="12" HorizontalAlignment="Right" Text="{Binding Date}"/>
+
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel HorizontalAlignment="Right">
+                                    <TextBlock FontSize="16" HorizontalAlignment="Right" Text="{Binding Stage}"/>
+
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                
+                                    <TextBlock FontSize="16" HorizontalAlignment="Right" Text="{Binding Place}"/>
+
+                               
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
                 </GridView>
-            </ListView.View>-->
+            </ListView.View>
             
         </ListView>
+       
+        
+            
+        <GroupBox Grid.Column="2" Grid.Row="2"  Header="Dodaj nowy mecz:">
+            <Grid HorizontalAlignment="Center" ClipToBounds="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                   
+                </Grid.RowDefinitions>
+                
+                
+                <TextBlock  Text="Gospodarz" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBox x:Name="Host" Grid.Column="1" Grid.Row="0"
+                         Text="{Binding HostName,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay,ValidatesOnDataErrors=True,NotifyOnValidationError=True}"
+                         behaviors:AutoCompleteBehavior.AutoCompleteItemsSource="{Binding SuggestedTeams}"
+                         TabIndex="1"/>
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Gość" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <TextBox x:Name="Guest" Grid.Column="1" Grid.Row="1" 
+                         Text="{Binding GuestName,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay,ValidatesOnDataErrors=True}" 
+                         behaviors:AutoCompleteBehavior.AutoCompleteItemsSource="{Binding SuggestedTeams}"
+                         TabIndex="2"/>
+                <TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Wynik"/>
+
+                <TextBlock  Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Data"/>
+                <TextBlock  Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Miejsce" />
+                <TextBlock  Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Faza" />
+                
+
+                <ComboBox x:Name="Place" Grid.Column="1" Grid.Row="5"  ItemsSource="{Binding CitiesCollection}" 
+                          FontSize="18" SelectedItem="{Binding SelectedCity,UpdateSourceTrigger=PropertyChanged}" TabIndex="7"/>
+                <ComboBox x:Name="Stage" Grid.Column="1" Grid.Row="4" ItemsSource="{Binding StageCollection}" 
+                          FontSize="18" SelectedItem="{Binding SelectedStage,UpdateSourceTrigger=PropertyChanged}" TabIndex="6"/>
+
+                  <wpfTool:DateTimeUpDown x:Name="Date" Grid.Column="1" Grid.Row="3" 
+                                          Grid.ColumnSpan="3" Margin="10,5"
+                                          MinHeight="35"
+                                          Format="Custom" FormatString="dd.MM.yyyy HH:mm" 
+                                         
+                                          Value="{Binding DatePicker,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                          TabIndex="5"/>
+                
+
+                <Grid x:Name="ScoreGrid" Grid.Column="1" Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition/>
+                        
+                        
+                    </Grid.ColumnDefinitions>
+                    <wpfTool:IntegerUpDown x:Name="LeftScore" Grid.Column="0" Margin="10,0,0,0" Minimum="0" FontSize="20" DefaultValue="0" Value="{Binding LeftScore}" TabIndex="3"/>
+                    <wpfTool:IntegerUpDown x:Name="RightScore" Grid.Column="2" Margin="0,0,10,0"  Minimum="0" FontSize="20" DefaultValue="0" Value="{Binding RightScore}" TabIndex="4"/>
+                    <TextBlock  Grid.Column="1" Text=" : "  VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" />
+                </Grid>
+                <Grid x:Name="ButtonGrid" Grid.Row="6" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Button   Height="50" FontSize="20" FontWeight="Bold" Content="Dodaj" Command="{Binding AddMatchCommand}" TabIndex="8"/>
+                    <Button  Grid.Column="1"  Height="50" FontSize="20" FontWeight="Bold" Content="Usuń" Command="{Binding RemoveMatchCommand}" TabIndex="9"/>
+                </Grid>
+
+            </Grid>
+        </GroupBox>
+ 
     </Grid>
 </Window>

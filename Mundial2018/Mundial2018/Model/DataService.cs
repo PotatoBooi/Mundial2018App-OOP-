@@ -9,37 +9,38 @@ namespace Mundial2018.Model
     {
 
         private const string filePath = @"..\json.json";
-       
+
         public void AddData(List<Match> match)
         {
-            //using (StreamWriter sw = new StreamWriter(filePath))
-            //using (JsonWriter writer = new JsonTextWriter(sw))
-            //{
-            //    serializer.Serialize(writer, match);
 
-            //}
+            if (!File.Exists(filePath))
+            {
+                using (StreamWriter sw = new StreamWriter(filePath))
+                using (JsonWriter writer = new JsonTextWriter(sw))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(writer, match);
+                   
+                }
+               
+            }
+            else
+            {
 
-            var jsonData = File.ReadAllText(filePath);
-            
-            jsonData = JsonConvert.SerializeObject(match);
-            File.WriteAllText(filePath, jsonData);
+                var jsonData = File.ReadAllText(filePath);
 
+                jsonData = JsonConvert.SerializeObject(match);
+                File.WriteAllText(filePath, jsonData);
 
+            }
         }
 
-        public void GetData(Action<DataItem, Exception> callback)
+        public List<Match> GetMatches()
         {
-            // Use this to connect to the actual data service
-
-            var item = new DataItem("Welcome to MVVM Light");
-            callback(item, null);
-        }
-
-        public IEnumerable<Match> GetMatches()
-        {
+            if (!File.Exists(filePath)) return new List<Match>();
             var jsonData = File.ReadAllText(filePath);
             var matchList = JsonConvert.DeserializeObject<List<Match>>(jsonData);
-            
+
             return matchList;
         }
     }
